@@ -1,15 +1,20 @@
 import express from 'express';
 import dotenv from 'dotenv';
-
+import cors from 'cors';
+import authRouter from './routes/user/auth';
 
 dotenv.config();
 
-
 const app = express();
 
-app.get("/", (req, res)=>{
+app.use(cors());
+app.use(express.json());
+
+app.use("/api/user/", authRouter);
+
+app.get("/", async (req, res) => {
     res.json({
-        success : true,
+        success: true,
     })
 })
 

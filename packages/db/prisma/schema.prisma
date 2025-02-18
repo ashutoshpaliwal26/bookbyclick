@@ -6,6 +6,51 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum UserRole{
+  ADMIN
+  ORGANIZER
+  CUSTOMER
+}
+
+enum TicketStatus {
+  BOOKED
+  CANCEL
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  password String
+  role  UserRole @default(CUSTOMER)
+  isVerfied Boolean @default(false)
+  code Int
+  createdAt DateTime @default(now()) 
+  Event Event[]
+  Tickets Tickets[]
+}
+
+model Event {
+  id Int @id @default(autoincrement())
+  title String
+  description String
+  available Int
+  total Int
+  organizerId Int
+  organizer User @relation(fields: [organizerId] , references: [id])
+  date DateTime
+  tickets Tickets[]
+}
+
+model Tickets {
+  id Int @id @default(autoincrement())
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  status TicketStatus
+  eventId Int
+  event Event @relation(fields: [eventId] , references: [id])
 }
