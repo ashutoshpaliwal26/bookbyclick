@@ -1,4 +1,11 @@
-import nodemailer from 'nodemailer';
+import nodemailer, { Transporter } from 'nodemailer';
+
+interface MailDetails {
+    reciver : string,
+    subject : string,
+    text : string
+}
+
 
 
 const transport = nodemailer.createTransport({
@@ -9,13 +16,13 @@ const transport = nodemailer.createTransport({
     }
 })
 
-export function sendMail(sender : string) {
+export function sendMail(sender : MailDetails) {
     
     let mailDetails = {
         from: 'ashutoshpaliwal26@gmail.com',
-        to: sender,
-        subject: 'Test mail',
-        text: 'Node.js testing mail for GeeksforGeeks'
+        to: sender.reciver,
+        subject: sender.subject,
+        text: sender.text
     };
 
     transport.sendMail(mailDetails,

@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 
 export class AuthSecurity {
-    private salt : number = 10;
+    private salt: number = 10;
 
     async createHashPassword(password: string): Promise<string> {
         try {
@@ -15,8 +15,14 @@ export class AuthSecurity {
         try {
             return await bcrypt.compare(password, hashPassword);
         } catch (error) {
-            throw Error((error as Error).message);
+            throw Error("Unable to Verify Password");
         }
     }
 
+    verifyOtp(otp: number, userOtp: number) : boolean {
+        if (otp == userOtp) {
+            return true;
+        }
+        return false;
+    }
 }

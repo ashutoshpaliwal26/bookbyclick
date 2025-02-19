@@ -1,4 +1,5 @@
 import { generateOTP } from "../../utils/otpgenerator";
+import { sendMail } from "../mail/mail";
 import { UserService } from "../user/UserService";
 import { AuthSecurity } from "./AuthSecurity";
 import { JwtService } from "./JwtService";
@@ -7,7 +8,6 @@ export class AuthSerivice {
     private jwtService: JwtService;
     private AuthSecurity: AuthSecurity;
     private UserService: UserService;
-
 
     constructor(jwtService: JwtService, authSecurity: AuthSecurity, userService: UserService) {
         this.jwtService = jwtService;
@@ -33,10 +33,13 @@ export class AuthSerivice {
         const payload = {
             name: newUser.name,
             email: newUser.email,
-            id: newUser.id
+            id: newUser.id,
+            isVerfied : newUser.isVerfied
         }
 
         const token = this.jwtService.generateToken(payload);
+
+        this.sendVerificationCode(newUser.email, newUser.code);
 
         const responce = {
             status : 200,
@@ -67,11 +70,14 @@ export class AuthSerivice {
             }
             return responce;
         }
+
         const payload = {
             name : user.name,
             email : user.email,
-            id : user.id
+            id : user.id,
+            isVerfied : user.isVerfied
         }
+
         const token = this.jwtService.generateToken(payload);
         
         const responce = {
@@ -82,6 +88,33 @@ export class AuthSerivice {
         }
 
         return responce;
+    }
+
+    public async deleteUser (id : number) : Promise<any | null > {
+        const deleteUser = await this.UserService.deleteUserById(id);
+        return {
+            message : "Successfully Delete User",
+            data : deleteUser
+        }
+    }
+    
+    public async verifyUser(id: number, otp:number) : Promise<boolean> {
+        const userCode = await this.UserService.getUserOtp(id);
+        if(!userCode) return false;
+        const isVerfied = this.AuthSecurity.verifyOtp(otp, userCode);
+        if(!isVerfied) return false;
+        const data = await this.UserService.verifyUserById(id);
+        return data;
+    }
+
+    public async sendVerificationCode (email : string, code : number) : Promise<boolean> {
+        const draft = await sendMail({
+            reciver : email,
+            subject : "Verification Code",
+            text : `The Verification Code for the Booking System is ${code}`
+        });
+
+        return true;
     }
 
 }

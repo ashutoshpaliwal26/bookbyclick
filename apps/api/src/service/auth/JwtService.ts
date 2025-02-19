@@ -14,7 +14,7 @@ export class JwtService {
         try{
             return jwt.verify(token, this.secrete);
         }catch(error){
-            throw Error((error as Error).message);
+            throw Error("Unable to verifiy");
         }
     }
 }

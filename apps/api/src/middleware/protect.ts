@@ -5,14 +5,15 @@ import { UserService } from "../service/user/UserService";
 const jwtService = new JwtService();
 const userService = new UserService();
 
-const protectMiddileWare = async (req : Request, res : Response, next : NextFunction) => {
+const protectMiddileWare = async (req : Request, res : Response, next : NextFunction) : Promise<any> => {
     const header = req.headers.authorization;
     if(!header && !header?.startsWith("Berear ")) return res.status(400).json(
         {
             message : "Invalid Header."
         }
     )
-    const token = header.split(" ")[0];
+    
+    const token = header.split(" ")[1];
 
     const payload = jwtService.verifyToken(token as string);
     

@@ -1,5 +1,6 @@
 import { Client } from '@repo/db/client'
 
+
 export class UserService {
     public async createUser(name: string, email: string, password: string, code: number) {
         try {
@@ -12,7 +13,7 @@ export class UserService {
                 }
             })
         } catch (error) {
-            throw Error((error as Error).message)
+            throw new Error((error as Error).message)
         }
     }
 
@@ -37,7 +38,7 @@ export class UserService {
             })
             return user;
         }catch(error){
-            throw Error((error as Error).message);
+            throw new Error((error as Error).message);
         }
     }
 
@@ -48,11 +49,59 @@ export class UserService {
                     id : id
                 }
             });
-
             return user;
         }catch(err){
-            throw Error((err as Error).message);
+            throw new Error((err as Error).message);
         }
     }
-    
+
+    public async deleteUserById(id : number) : Promise<any | null> {
+        try{
+            return await Client.user.delete({
+                where : {
+                    id : id
+                }
+            });
+        }catch(err){
+            throw new Error((err as Error).message);
+        }
+    }
+
+    public async getUserOtp(id : number) : Promise<number | null> {
+        try{
+            const user = await Client.user.findUnique({
+                where : {
+                    id : id
+                }
+            });
+
+            if(!user){
+                return null;
+            }
+
+            return user.code;
+        }catch(err){
+            throw new Error("")
+        }
+    }
+
+    public async verifyUserById(id : number) : Promise<boolean> {
+        try{
+            const user = await Client.user.update({
+                where : {id : id},
+                data : {
+                    isVerfied : true,
+                    code : 0
+                }
+            })
+
+            if(!user){
+                return false;
+            }
+            
+            return true;
+        }catch(err){
+            throw new Error("Verification Fail")
+        }
+    } 
 }
